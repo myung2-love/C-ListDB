@@ -6,8 +6,8 @@ void TestDeleteNodeByName(const char* pszName)
     InitDummyData();
     PrintList();
 
-    USERDATA* pPrev = NULL;
-    if (SearchToRemove(&pPrev, pszName) != NULL)
+    USERDATA* pPrev = SearchToRemove(pszName);
+    if (pPrev != NULL)
         RemoveNode(pPrev);
     ReleaseList();
     putchar('\n');

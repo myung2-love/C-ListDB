@@ -13,7 +13,7 @@ extern USERDATA* g_pHeadNode;
 
 void AddNewNode(int age, const char* pszName, const char* pszPhone);
 USERDATA* SearchByName(const char* pszName);
-USERDATA* SearchToRemove(USERDATA** ppPrev, const char* pszName);
+USERDATA* SearchToRemove(const char* pszName);
 void RemoveNode(USERDATA* pPrev);
 void ReleaseList(void);
 void PrintList(void);

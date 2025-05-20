@@ -3,7 +3,12 @@
 #include <string.h>
 #include "user_data.h"
 
-USERDATA* g_pHeadNode = NULL;
+USERDATA g_HeadNode = { 
+    .age = 0,
+    .name = "__Dummy_Node__",
+    .phone = "\0",
+    .pNext = NULL
+};
 
 void AddNewNode(int age, const char *pszName, const char *pszPhone)
 {
@@ -15,21 +20,17 @@ void AddNewNode(int age, const char *pszName, const char *pszPhone)
     pNewNode->phone[sizeof(pNewNode->phone) - 1] = '\0';
     pNewNode->pNext = NULL;
 
-    if (g_pHeadNode == NULL)
-        g_pHeadNode = pNewNode;
-    else 
-    {
-        USERDATA* pTail = g_pHeadNode;
-        while (pTail->pNext != NULL)
-            pTail = pTail->pNext;
+    USERDATA* pTail = &g_HeadNode;
+    while (pTail->pNext != NULL)
+        pTail = pTail->pNext;
 
-        pTail->pNext = pNewNode;
-    }
+    pTail->pNext = pNewNode;
 }
 
 USERDATA* SearchByName(const char* pszName)
 {
-    USERDATA* pTmp = g_pHeadNode;
+    USERDATA* pTmp = g_HeadNode.pNext;
+
     while (pTmp != NULL) 
     {
         if (strcmp(pTmp->name, pszName) == 0)
@@ -44,19 +45,16 @@ USERDATA* SearchByName(const char* pszName)
     return NULL;
 }
 
-USERDATA* SearchToRemove(USERDATA** ppPrev, const char* pszName)
+USERDATA* SearchToRemove(const char* pszName)
 {
-    USERDATA* pCurrent = g_pHeadNode;
-    USERDATA* pPrev = NULL;
-    while (pCurrent != NULL)
+    USERDATA* pPrev = &g_HeadNode;
+    while (pPrev->pNext != NULL)
     {
-        if (strcmp(pCurrent->name, pszName) == 0)
+        if (strcmp(pPrev->pNext->name, pszName) == 0)
         {
-            *ppPrev = pPrev;
-            return pCurrent;
+            return pPrev;
         }
-        pPrev = pCurrent;
-        pCurrent = pCurrent->pNext;
+        pPrev = pPrev->pNext;
     }
     printf("\"%s\": Not found\n", pszName);
     return NULL;
@@ -65,20 +63,6 @@ USERDATA* SearchToRemove(USERDATA** ppPrev, const char* pszName)
 void RemoveNode(USERDATA* pPrev)
 {
     USERDATA* pRemove = NULL;
-    if (pPrev == NULL)
-    {
-        if (g_pHeadNode == NULL)
-            return;
-        else
-        {
-            pRemove = g_pHeadNode;
-            g_pHeadNode = pRemove->pNext;
-            printf("Remove: %s\n", pRemove->name);
-            free(pRemove);
-        }
-
-        return;
-    }
 
     pRemove = pPrev->pNext;
     pPrev->pNext = pRemove->pNext;
@@ -88,7 +72,7 @@ void RemoveNode(USERDATA* pPrev)
 
 void ReleaseList(void)
 {
-    USERDATA* pTmp = g_pHeadNode;
+    USERDATA* pTmp = g_HeadNode.pNext;
     USERDATA* pDelete;
     while (pTmp != NULL)
     {
@@ -100,12 +84,12 @@ void ReleaseList(void)
         free(pDelete);
     }
     
-    g_pHeadNode = NULL;
+    g_HeadNode.pNext = NULL;
 }
 
 void PrintList(void)
 {
-    USERDATA* pTmp = g_pHeadNode;
+    USERDATA* pTmp = g_HeadNode.pNext;
     while (pTmp != NULL)
     {
         printf("[%p] %d, %s, %s [%p]\n",
