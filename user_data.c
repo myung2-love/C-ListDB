@@ -5,12 +5,25 @@
 
 USERDATA g_HeadNode = { 
     .age = 0,
-    .name = "__Dummy_Node__",
+    .name = "__Dummy Head__",
     .phone = "\0",
     .pNext = NULL
 };
 
-void AddNewNode(int age, const char *pszName, const char *pszPhone)
+USERDATA g_TailNode = {
+    .age = 0,
+    .name = "__Dummy Tail__",
+    .phone = "\0",
+    .pNext = NULL
+};
+
+void InitList(void)
+{
+    g_HeadNode.pNext = &g_TailNode;
+    g_TailNode.pPrev = &g_HeadNode;
+}
+
+void AddNewNodeAtTail(int age, const char *pszName, const char *pszPhone)
 {
     USERDATA* pNewNode = (USERDATA*)malloc(sizeof(USERDATA));
     pNewNode->age = age;
@@ -18,13 +31,15 @@ void AddNewNode(int age, const char *pszName, const char *pszPhone)
     pNewNode->name[sizeof(pNewNode->name) - 1] = '\0';
     strncpy(pNewNode->phone, pszPhone, sizeof(pNewNode->phone) - 1);
     pNewNode->phone[sizeof(pNewNode->phone) - 1] = '\0';
+    pNewNode->pPrev = NULL;
     pNewNode->pNext = NULL;
 
-    USERDATA* pTail = &g_HeadNode;
-    while (pTail->pNext != NULL)
-        pTail = pTail->pNext;
+    USERDATA* pPrevNode = g_TailNode.pPrev;
+    pNewNode->pPrev = pPrevNode;
+    pNewNode->pNext = &g_TailNode;
 
-    pTail->pNext = pNewNode;
+    pPrevNode->pNext = pNewNode;
+    g_TailNode.pPrev = pNewNode;
 }
 
 USERDATA* SearchByName(const char* pszName)
@@ -45,28 +60,15 @@ USERDATA* SearchByName(const char* pszName)
     return NULL;
 }
 
-USERDATA* SearchToRemove(const char* pszName)
+void RemoveNode(USERDATA* pRemove)
 {
-    USERDATA* pPrev = &g_HeadNode;
-    while (pPrev->pNext != NULL)
-    {
-        if (strcmp(pPrev->pNext->name, pszName) == 0)
-        {
-            return pPrev;
-        }
-        pPrev = pPrev->pNext;
-    }
-    printf("\"%s\": Not found\n", pszName);
-    return NULL;
-}
+    USERDATA* pPrev = pRemove->pPrev;
+    USERDATA* pNext = pRemove->pNext;
 
-void RemoveNode(USERDATA* pPrev)
-{
-    USERDATA* pRemove = NULL;
-
-    pRemove = pPrev->pNext;
     pPrev->pNext = pRemove->pNext;
-    printf("Remove: %s\n", pRemove->name);
+    pNext->pPrev = pRemove->pPrev;
+
+    printf("RemoveNode(): %s\n", pRemove->name);
     free(pRemove);
 }
 
@@ -74,7 +76,7 @@ void ReleaseList(void)
 {
     USERDATA* pTmp = g_HeadNode.pNext;
     USERDATA* pDelete;
-    while (pTmp != NULL)
+    while (pTmp != NULL && pTmp != &g_TailNode)
     {
         pDelete = pTmp;
         pTmp = pTmp->pNext;
@@ -84,13 +86,13 @@ void ReleaseList(void)
         free(pDelete);
     }
     
-    g_HeadNode.pNext = NULL;
+    InitList();
 }
 
 void PrintList(void)
 {
     USERDATA* pTmp = g_HeadNode.pNext;
-    while (pTmp != NULL)
+    while (pTmp != NULL && pTmp != &g_TailNode)
     {
         printf("[%p] %d, %s, %s [%p]\n",
                pTmp, pTmp->age, pTmp->name, pTmp->phone, pTmp->pNext);
@@ -99,9 +101,22 @@ void PrintList(void)
     putchar('\n');
 }
 
+void PrintListReverse(void)
+{
+    USERDATA* pTmp = &g_TailNode;
+    while (pTmp != NULL)
+    {
+        printf("[%p] %d, %s, %s [%p]\n",
+               pTmp, pTmp->age, pTmp->name, pTmp->phone, pTmp->pNext);
+        pTmp = pTmp->pPrev;
+    }
+    putchar('\n');
+}
+
 void InitDummyData(void)
 {
-    AddNewNode(25, "Myung", "010-1111-1111");
-    AddNewNode(24, "Hee", "010-2222-2222");
-    AddNewNode(27, "Min", "010-3333-3333");
+    InitList();
+    AddNewNodeAtTail(25, "Myung", "010-1111-1111");
+    AddNewNodeAtTail(24, "Hee", "010-2222-2222");
+    AddNewNodeAtTail(27, "Min", "010-3333-3333");
 }

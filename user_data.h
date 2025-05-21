@@ -6,17 +6,16 @@ typedef struct USERDATA
     int age;
     char name[32];
     char phone[32];
+    struct USERDATA* pPrev;
     struct USERDATA* pNext;
 } USERDATA;
 
-extern USERDATA* g_pHeadNode;
-
-void AddNewNode(int age, const char* pszName, const char* pszPhone);
+void AddNewNodeAtTail(int age, const char* pszName, const char* pszPhone);
 USERDATA* SearchByName(const char* pszName);
-USERDATA* SearchToRemove(const char* pszName);
 void RemoveNode(USERDATA* pPrev);
 void ReleaseList(void);
 void PrintList(void);
+void PrintListReverse(void);
 void InitDummyData(void);
 
 #endif
